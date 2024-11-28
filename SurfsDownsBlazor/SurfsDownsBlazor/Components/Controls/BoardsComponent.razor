@@ -1,0 +1,10 @@
+﻿<div data-name ="@boards.Name" data-status="Board is @(boards.IsAvailable?"Available":"Unavailable")" style="color:@(boards.IsAvailable?"green":"red")">
+</div>
+
+
+
+
+@code {
+    private Board boards = new Board { Name = "Flying Prime" };
+
+}
