@@ -1,3 +1,4 @@
+using Blazored.LocalStorage; // So we can add the localStorage Services-line below; it's from this using-directive (i.e. the nuget package)
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -15,6 +16,8 @@ builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddScoped<IdentityUserAccessor>();
 builder.Services.AddScoped<IdentityRedirectManager>();
 builder.Services.AddScoped<AuthenticationStateProvider, IdentityRevalidatingAuthenticationStateProvider>();
+
+builder.Services.AddBlazoredLocalStorage(); // Required for localStorage!
 
 builder.Services.AddAuthentication(options =>
     {

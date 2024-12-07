@@ -1,13 +1,25 @@
 ﻿@page "/udlejning"
 
+@rendermode InteractiveServer
+
+@inject Blazored.LocalStorage.ILocalStorageService LocalStorage
+
 <h3>Udlejning</h3>
+
+@* Knap som kalder vores "Something()"-metode, som saetter en vaerdi med key'en "Dan" ind i vores localStorage, med vaerdien "Dans Value" *@
+<button @onclick="Something">Klik mig for at tilföje en random braet</button>
+
+@* Knap som vi kan klikke paa, som kalder "UpdateBasedOn()"-metoden, som opdaterer vores "myThingy" variabel til den vaerdi, som er i localStorage (i dette tilfaelde "Dans Value") *@
+<button @onclick="UpdateBasedOn">OPDATER TIL LOCAL THINGY</button>
+
+<br />
+<br />
 
 @if (boards == null)
 {
     <p>Loadink...</p>
 } else
 {
-
     <div class="main-container">
         <!-- Surfboards section -->
         <div class="product-list">
@@ -45,12 +57,55 @@
             </div>
         </div>
     </div>
-    
+
 }
 
+
+@{
+    <p id="mythingy">@myThingy</p>
+}
 
 @code {
     private List<Surfboard> boards = SurfboardRepository.Get_Surfboards();
 
+    private string myThingy = "Unset"; // Den variabel vi har liggende, som vi kan aendre
+    // Naar denne aendres, 'burde' siden opdatere sig selv (specifik, den <p>-paragraph vi har paa linje 65; dens tekst skulle altid vaere sat til denne variabel's vaerdi, saa naar vaerdien aendrer sig, burde siden opdatere ogsaa)
 
+    // TODO Try StreamingRendermode from Weather-page ; 
+    // Klaus suggestion for at solve problem med, siden ikke initially self-updater med localStorage vaerdien "Dan's Value"
+    // // (den forbliver "Unset", selvom vores local er sat fra sidste visit + bliver kört asynkront))
+    async void OnInitialized () {
+        //UpdateBasedOn(); // Prövede at köre den her, for at opdatere variablen myThingy til localStorage-vaerdien, EFTER siden er indlaest men FÖR vi har gjort noget som bruger paa siden -- virker dog ikke helt for some reason :/
+        myThingy = await ReadFromLocalStorage("Dan");
+    }
+
+    async void Something () {
+        await SaveToLocalStorage("Dan", "DANS VALUE");
+    }
+
+    async void UpdateBasedOn () {
+        myThingy = await ReadFromLocalStorage("Dan");
+    }
+
+    // ---------------------------- Disse 4 metoder er for at vi ka' benytte localStorage fra vores nuget package! -------------------------------
+    private async Task SaveToLocalStorage(string key, string value)
+    {
+        await LocalStorage.SetItemAsync(key, value);
+    }
+
+    private async Task<string> ReadFromLocalStorage(string key)
+    {
+        return await LocalStorage.GetItemAsync<string>(key);
+    }
+
+    private async Task RemoveFromLocalStorage(string key)
+    {
+        await LocalStorage.RemoveItemAsync(key);
+    }
+
+    private async Task ClearLocalStorage()
+    {
+        await LocalStorage.ClearAsync();
+    }
+    // -------------------------------------------------------------------------------------------------------------------------------------------
 }
